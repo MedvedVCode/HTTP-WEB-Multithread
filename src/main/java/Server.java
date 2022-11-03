@@ -1,7 +1,4 @@
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,44 +30,31 @@ public class Server {
 
     private void requestClient(Socket socket) {
         try (
-                final var in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                final var in = new BufferedInputStream(socket.getInputStream());
                 final var out = new BufferedOutputStream(socket.getOutputStream())
         ) {
             System.out.printf("Handle client port %d in thread %s\n", socket.getPort(), Thread.currentThread().getName());
 
-            String requestLine = null;
-            while (requestLine == null) {
-                requestLine = in.readLine();
-            }
-            //System.out.println(requestLine);
-            final var parts = requestLine.split(" ");
+            var request = RequestBuilder.build(in, out);
 
-            if (parts.length != 3) {
-                badRequest(out);
-                return;
-            }
-
-            //var requst = new Request(parts[0], parts[1]);
-            var requst = RequestBuilder.build(parts[0], parts[1]);
-
-            if (!handlersMap.containsKey(requst.getMethod())) {
+            if (!handlersMap.containsKey(request.getMethod())) {
                 notFound(out);
                 return;
             }
 
-            if (!handlersMap.get(requst.getMethod()).containsKey(requst.getPath())) {
+            if (!handlersMap.get(request.getMethod()).containsKey(request.getPath())) {
                 notFound(out);
                 return;
             }
 
-            var handler = handlersMap.get(requst.getMethod()).get(requst.getPath());
+            var handler = handlersMap.get(request.getMethod()).get(request.getPath());
 
             if (handler == null) {
                 notFound(out);
                 return;
             }
 
-            handler.handle(requst, out);
+            handler.handle(request, out);
 
         } catch (IOException e) {
             e.getMessage();
