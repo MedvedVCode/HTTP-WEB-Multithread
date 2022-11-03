@@ -42,6 +42,7 @@ public class Server {
             while (requestLine == null) {
                 requestLine = in.readLine();
             }
+            //System.out.println(requestLine);
             final var parts = requestLine.split(" ");
 
             if (parts.length != 3) {
@@ -49,7 +50,8 @@ public class Server {
                 return;
             }
 
-            var requst = new Request(parts[0], parts[1]);
+            //var requst = new Request(parts[0], parts[1]);
+            var requst = RequestBuilder.build(parts[0], parts[1]);
 
             if (!handlersMap.containsKey(requst.getMethod())) {
                 notFound(out);
