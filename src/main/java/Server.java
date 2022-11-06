@@ -1,6 +1,11 @@
 import org.apache.http.NameValuePair;
 
+
 import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
@@ -42,7 +47,9 @@ public class Server {
             printParams(request.getPostParam("value"));
             printParams(request.getPostParams());
 
+
             if (!handlersMap.containsKey(request.getMethod())) {
+
                 notFound(out);
                 return;
             }
@@ -85,6 +92,7 @@ public class Server {
         ).getBytes());
         out.flush();
     }
+
 
 public void printParams(List<NameValuePair> params){
         params.forEach(System.out::println);
