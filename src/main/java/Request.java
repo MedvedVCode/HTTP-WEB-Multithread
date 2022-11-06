@@ -29,11 +29,11 @@ public class Request {
         return path;
     }
 
-    public List<NameValuePair> getListQuery() {
+    public List<NameValuePair> getQueryParam() {
         return listQuery;
     }
 
-    public List<NameValuePair> getListQuery(String name) {
+    public List<NameValuePair> getQueryParam(String name) {
         return listQuery.stream()
                 .filter(str -> Objects.equals(str.getName(),name))
                 .collect(Collectors.toList());

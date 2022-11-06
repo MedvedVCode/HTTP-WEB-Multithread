@@ -1,9 +1,12 @@
+import org.apache.http.NameValuePair;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,6 +56,9 @@ public class Server {
             //var requst = new Request(parts[0], parts[1]);
             var requst = RequestBuilder.build(parts[0], parts[1]);
 
+            printParams(requst.getQueryParam());
+            printParams(requst.getQueryParam("password"));
+
             if (!handlersMap.containsKey(requst.getMethod())) {
                 notFound(out);
                 return;
@@ -97,5 +103,7 @@ public class Server {
         out.flush();
     }
 
-
+public void printParams(List<NameValuePair> list){
+        list.forEach(System.out::println);
+}
 }
