@@ -100,9 +100,9 @@ public class RequestBuilder {
                 //System.out.println(body);
 
                 bodyParam = URLEncodedUtils.parse(body, Charset.defaultCharset());
-                bodyParam.stream().forEach(System.out::println);
+                //bodyParam.stream().forEach(System.out::println);
             }
-        } else {
+        } else if (method.equals(GET)){
             URI uri;
             try {
                 uri = new URI(path);
@@ -111,7 +111,7 @@ public class RequestBuilder {
             }
             pathWithoutParams = uri.getPath();
             queryParam = URLEncodedUtils.parse(uri, Charset.defaultCharset());
-            queryParam.stream().forEach(System.out::println);
+            //queryParam.stream().forEach(System.out::println);
         }
 
         return new Request(method, pathWithoutParams, queryParam, bodyParam);

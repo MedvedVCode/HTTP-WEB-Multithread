@@ -1,6 +1,9 @@
+import org.apache.http.NameValuePair;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,6 +39,8 @@ public class Server {
             System.out.printf("Handle client port %d in thread %s\n", socket.getPort(), Thread.currentThread().getName());
 
             var request = RequestBuilder.build(in, out);
+            printParams(request.getPostParam("value"));
+            printParams(request.getPostParams());
 
             if (!handlersMap.containsKey(request.getMethod())) {
                 notFound(out);
@@ -81,5 +86,7 @@ public class Server {
         out.flush();
     }
 
-
+public void printParams(List<NameValuePair> params){
+        params.forEach(System.out::println);
+}
 }
