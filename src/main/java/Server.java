@@ -1,5 +1,7 @@
 import org.apache.http.NameValuePair;
 
+
+import java.io.*;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,47 +38,35 @@ public class Server {
 
     private void requestClient(Socket socket) {
         try (
-                final var in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                final var in = new BufferedInputStream(socket.getInputStream());
                 final var out = new BufferedOutputStream(socket.getOutputStream())
         ) {
             System.out.printf("Handle client port %d in thread %s\n", socket.getPort(), Thread.currentThread().getName());
 
-            String requestLine = null;
-            while (requestLine == null) {
-                requestLine = in.readLine();
-            }
-            //System.out.println(requestLine);
-            final var parts = requestLine.split(" ");
+            var request = RequestBuilder.build(in, out);
+            printParams(request.getPostParam("value"));
+            printParams(request.getPostParams());
 
-            if (parts.length != 3) {
-                badRequest(out);
-                return;
-            }
 
-            //var requst = new Request(parts[0], parts[1]);
-            var requst = RequestBuilder.build(parts[0], parts[1]);
+            if (!handlersMap.containsKey(request.getMethod())) {
 
-            printParams(requst.getQueryParam());
-            printParams(requst.getQueryParam("password"));
-
-            if (!handlersMap.containsKey(requst.getMethod())) {
                 notFound(out);
                 return;
             }
 
-            if (!handlersMap.get(requst.getMethod()).containsKey(requst.getPath())) {
+            if (!handlersMap.get(request.getMethod()).containsKey(request.getPath())) {
                 notFound(out);
                 return;
             }
 
-            var handler = handlersMap.get(requst.getMethod()).get(requst.getPath());
+            var handler = handlersMap.get(request.getMethod()).get(request.getPath());
 
             if (handler == null) {
                 notFound(out);
                 return;
             }
 
-            handler.handle(requst, out);
+            handler.handle(request, out);
 
         } catch (IOException e) {
             e.getMessage();
@@ -103,7 +93,8 @@ public class Server {
         out.flush();
     }
 
-public void printParams(List<NameValuePair> list){
-        list.forEach(System.out::println);
+
+public void printParams(List<NameValuePair> params){
+        params.forEach(System.out::println);
 }
 }
